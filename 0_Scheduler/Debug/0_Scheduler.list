@@ -1,0 +1,992 @@
+
+0_Scheduler.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   00000198  08000000  08000000  00001000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         00000498  08000198  08000198  00001198  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       00000090  08000630  08000630  00001630  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  3 .ARM.extab    00000000  080006c0  080006c0  000016c8  2**0
+                  CONTENTS
+  4 .ARM          00000000  080006c0  080006c0  000016c8  2**0
+                  CONTENTS
+  5 .preinit_array 00000000  080006c0  080006c8  000016c8  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .init_array   00000004  080006c0  080006c0  000016c0  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  7 .fini_array   00000004  080006c4  080006c4  000016c4  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  8 .data         00000000  20000000  20000000  000016c8  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .bss          00000028  20000000  080006c8  00002000  2**2
+                  ALLOC
+ 10 ._user_heap_stack 00000600  20000028  080006c8  00002028  2**0
+                  ALLOC
+ 11 .ARM.attributes 00000030  00000000  00000000  000016c8  2**0
+                  CONTENTS, READONLY
+ 12 .debug_info   00000fcf  00000000  00000000  000016f8  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .debug_abbrev 000005ea  00000000  00000000  000026c7  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_aranges 00000198  00000000  00000000  00002cb8  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_rnglists 000000fe  00000000  00000000  00002e50  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 16 .debug_macro  0000e196  00000000  00000000  00002f4e  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 17 .debug_line   0000256e  00000000  00000000  000110e4  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 18 .debug_str    000507f9  00000000  00000000  00013652  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 19 .comment      00000043  00000000  00000000  00063e4b  2**0
+                  CONTENTS, READONLY
+ 20 .debug_frame  000003b8  00000000  00000000  00063e90  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 21 .debug_line_str 0000009a  00000000  00000000  00064248  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+08000198 <__do_global_dtors_aux>:
+ 8000198:	b510      	push	{r4, lr}
+ 800019a:	4c05      	ldr	r4, [pc, #20]	@ (80001b0 <__do_global_dtors_aux+0x18>)
+ 800019c:	7823      	ldrb	r3, [r4, #0]
+ 800019e:	b933      	cbnz	r3, 80001ae <__do_global_dtors_aux+0x16>
+ 80001a0:	4b04      	ldr	r3, [pc, #16]	@ (80001b4 <__do_global_dtors_aux+0x1c>)
+ 80001a2:	b113      	cbz	r3, 80001aa <__do_global_dtors_aux+0x12>
+ 80001a4:	4804      	ldr	r0, [pc, #16]	@ (80001b8 <__do_global_dtors_aux+0x20>)
+ 80001a6:	f3af 8000 	nop.w
+ 80001aa:	2301      	movs	r3, #1
+ 80001ac:	7023      	strb	r3, [r4, #0]
+ 80001ae:	bd10      	pop	{r4, pc}
+ 80001b0:	20000000 	.word	0x20000000
+ 80001b4:	00000000 	.word	0x00000000
+ 80001b8:	08000618 	.word	0x08000618
+
+080001bc <frame_dummy>:
+ 80001bc:	b508      	push	{r3, lr}
+ 80001be:	4b03      	ldr	r3, [pc, #12]	@ (80001cc <frame_dummy+0x10>)
+ 80001c0:	b11b      	cbz	r3, 80001ca <frame_dummy+0xe>
+ 80001c2:	4903      	ldr	r1, [pc, #12]	@ (80001d0 <frame_dummy+0x14>)
+ 80001c4:	4803      	ldr	r0, [pc, #12]	@ (80001d4 <frame_dummy+0x18>)
+ 80001c6:	f3af 8000 	nop.w
+ 80001ca:	bd08      	pop	{r3, pc}
+ 80001cc:	00000000 	.word	0x00000000
+ 80001d0:	20000004 	.word	0x20000004
+ 80001d4:	08000618 	.word	0x08000618
+
+080001d8 <gsc_sch_core_Init>:
+ *  Return               :  void
+ *  Precondition         :  This function must be called after cpu initialization.
+ *  Postcondition        :  Function gsc_sch_core_exec can be called.
+ **************************************************************/
+void gsc_sch_core_Init(void)
+{
+ 80001d8:	b580      	push	{r7, lr}
+ 80001da:	b082      	sub	sp, #8
+ 80001dc:	af00      	add	r7, sp, #0
+    E_MODULES_ID_TYPE le_mngIndex;
+
+    /* clear timer interrupt flag */
+    re_sch_mngExecflag = SCH_FALSE;
+ 80001de:	4b11      	ldr	r3, [pc, #68]	@ (8000224 <gsc_sch_core_Init+0x4c>)
+ 80001e0:	2200      	movs	r2, #0
+ 80001e2:	701a      	strb	r2, [r3, #0]
+
+    /* Disable Interrupt */
+    //gsc_sch_disable_interrupts_cb();
+
+    /* Call Init function of modules */
+    for (le_mngIndex = (E_MODULES_ID_TYPE)0; le_mngIndex < SCHD_MANAGERS_NUMBER; le_mngIndex++)
+ 80001e4:	2300      	movs	r3, #0
+ 80001e6:	71fb      	strb	r3, [r7, #7]
+ 80001e8:	e011      	b.n	800020e <gsc_sch_core_Init+0x36>
+    {
+        if (cps_mngTaskList[le_mngIndex].ManagerInitAPI != SCHM_NULL_PTR)
+ 80001ea:	79fb      	ldrb	r3, [r7, #7]
+ 80001ec:	4a0e      	ldr	r2, [pc, #56]	@ (8000228 <gsc_sch_core_Init+0x50>)
+ 80001ee:	011b      	lsls	r3, r3, #4
+ 80001f0:	4413      	add	r3, r2
+ 80001f2:	3304      	adds	r3, #4
+ 80001f4:	681b      	ldr	r3, [r3, #0]
+ 80001f6:	2b00      	cmp	r3, #0
+ 80001f8:	d006      	beq.n	8000208 <gsc_sch_core_Init+0x30>
+        {
+            cps_mngTaskList[le_mngIndex].ManagerInitAPI();
+ 80001fa:	79fb      	ldrb	r3, [r7, #7]
+ 80001fc:	4a0a      	ldr	r2, [pc, #40]	@ (8000228 <gsc_sch_core_Init+0x50>)
+ 80001fe:	011b      	lsls	r3, r3, #4
+ 8000200:	4413      	add	r3, r2
+ 8000202:	3304      	adds	r3, #4
+ 8000204:	681b      	ldr	r3, [r3, #0]
+ 8000206:	4798      	blx	r3
+    for (le_mngIndex = (E_MODULES_ID_TYPE)0; le_mngIndex < SCHD_MANAGERS_NUMBER; le_mngIndex++)
+ 8000208:	79fb      	ldrb	r3, [r7, #7]
+ 800020a:	3301      	adds	r3, #1
+ 800020c:	71fb      	strb	r3, [r7, #7]
+ 800020e:	79fb      	ldrb	r3, [r7, #7]
+ 8000210:	2b08      	cmp	r3, #8
+ 8000212:	d9ea      	bls.n	80001ea <gsc_sch_core_Init+0x12>
+	gsc_sch_interrupts_init_cfg_cb();
+
+    /* Enable Interrupt */
+    //gsc_sch_enable_interrupts_cb();
+
+    rt_curOpMode = NORMAL_MODE;
+ 8000214:	4b05      	ldr	r3, [pc, #20]	@ (800022c <gsc_sch_core_Init+0x54>)
+ 8000216:	2201      	movs	r2, #1
+ 8000218:	801a      	strh	r2, [r3, #0]
+}
+ 800021a:	bf00      	nop
+ 800021c:	3708      	adds	r7, #8
+ 800021e:	46bd      	mov	sp, r7
+ 8000220:	bd80      	pop	{r7, pc}
+ 8000222:	bf00      	nop
+ 8000224:	2000001e 	.word	0x2000001e
+ 8000228:	08000630 	.word	0x08000630
+ 800022c:	2000001c 	.word	0x2000001c
+
+08000230 <gsc_sch_core_exec>:
+ *  Precondition         :  This function must be called after scheduler initialization.
+ *  Postcondition        :  none.
+ *  Critical/explanation :  This function contains an infite loop.
+ **************************************************************/
+void gsc_sch_core_exec(void)
+{
+ 8000230:	b580      	push	{r7, lr}
+ 8000232:	b086      	sub	sp, #24
+ 8000234:	af00      	add	r7, sp, #0
+    E_MODULES_ID_TYPE le_mngIndex;
+    T_DelayMainType lasw_MngTimeCnt[SCHD_MANAGERS_NUMBER];
+
+    /* Initialization of local modules counters to delay of module execution from Scheduler start */
+    for (le_mngIndex = (E_MODULES_ID_TYPE)0; le_mngIndex < SCHD_MANAGERS_NUMBER; le_mngIndex++)
+ 8000236:	2300      	movs	r3, #0
+ 8000238:	75fb      	strb	r3, [r7, #23]
+ 800023a:	e00e      	b.n	800025a <gsc_sch_core_exec+0x2a>
+    {
+        lasw_MngTimeCnt[le_mngIndex] = (T_DelayMainType)cps_mngTaskList[le_mngIndex].StartUpDelay;
+ 800023c:	7dfa      	ldrb	r2, [r7, #23]
+ 800023e:	7dfb      	ldrb	r3, [r7, #23]
+ 8000240:	492e      	ldr	r1, [pc, #184]	@ (80002fc <gsc_sch_core_exec+0xcc>)
+ 8000242:	0112      	lsls	r2, r2, #4
+ 8000244:	440a      	add	r2, r1
+ 8000246:	3208      	adds	r2, #8
+ 8000248:	8812      	ldrh	r2, [r2, #0]
+ 800024a:	005b      	lsls	r3, r3, #1
+ 800024c:	3318      	adds	r3, #24
+ 800024e:	443b      	add	r3, r7
+ 8000250:	f823 2c14 	strh.w	r2, [r3, #-20]
+    for (le_mngIndex = (E_MODULES_ID_TYPE)0; le_mngIndex < SCHD_MANAGERS_NUMBER; le_mngIndex++)
+ 8000254:	7dfb      	ldrb	r3, [r7, #23]
+ 8000256:	3301      	adds	r3, #1
+ 8000258:	75fb      	strb	r3, [r7, #23]
+ 800025a:	7dfb      	ldrb	r3, [r7, #23]
+ 800025c:	2b08      	cmp	r3, #8
+ 800025e:	d9ed      	bls.n	800023c <gsc_sch_core_exec+0xc>
+    }
+
+    do
+    {
+        /* wait for timer interrupt */
+        if (re_sch_mngExecflag)
+ 8000260:	4b27      	ldr	r3, [pc, #156]	@ (8000300 <gsc_sch_core_exec+0xd0>)
+ 8000262:	781b      	ldrb	r3, [r3, #0]
+ 8000264:	b2db      	uxtb	r3, r3
+ 8000266:	2b00      	cmp	r3, #0
+ 8000268:	d0fa      	beq.n	8000260 <gsc_sch_core_exec+0x30>
+        {
+            /* clear timer interrupt flag */
+            re_sch_mngExecflag = SCH_FALSE;
+ 800026a:	4b25      	ldr	r3, [pc, #148]	@ (8000300 <gsc_sch_core_exec+0xd0>)
+ 800026c:	2200      	movs	r2, #0
+ 800026e:	701a      	strb	r2, [r3, #0]
+            /* check each module from the list of modules */
+            for (le_mngIndex = (E_MODULES_ID_TYPE)0; le_mngIndex < SCHD_MANAGERS_NUMBER; le_mngIndex++)
+ 8000270:	2300      	movs	r3, #0
+ 8000272:	75fb      	strb	r3, [r7, #23]
+ 8000274:	e03d      	b.n	80002f2 <gsc_sch_core_exec+0xc2>
+            {
+                if (cps_mngTaskList[le_mngIndex].ManagerAPI != SCHM_NULL_PTR)
+ 8000276:	7dfb      	ldrb	r3, [r7, #23]
+ 8000278:	4a20      	ldr	r2, [pc, #128]	@ (80002fc <gsc_sch_core_exec+0xcc>)
+ 800027a:	011b      	lsls	r3, r3, #4
+ 800027c:	4413      	add	r3, r2
+ 800027e:	681b      	ldr	r3, [r3, #0]
+ 8000280:	2b00      	cmp	r3, #0
+ 8000282:	d033      	beq.n	80002ec <gsc_sch_core_exec+0xbc>
+                {
+                    /* decrement the local counter of modules  */
+                    lasw_MngTimeCnt[le_mngIndex] -= STEP_IN_TICKS;
+ 8000284:	7dfb      	ldrb	r3, [r7, #23]
+ 8000286:	005b      	lsls	r3, r3, #1
+ 8000288:	3318      	adds	r3, #24
+ 800028a:	443b      	add	r3, r7
+ 800028c:	f833 2c14 	ldrh.w	r2, [r3, #-20]
+ 8000290:	7dfb      	ldrb	r3, [r7, #23]
+ 8000292:	3a01      	subs	r2, #1
+ 8000294:	b292      	uxth	r2, r2
+ 8000296:	005b      	lsls	r3, r3, #1
+ 8000298:	3318      	adds	r3, #24
+ 800029a:	443b      	add	r3, r7
+ 800029c:	f823 2c14 	strh.w	r2, [r3, #-20]
+                    /* check whether counter is expired */
+                    if (lasw_MngTimeCnt[le_mngIndex] <= 0)
+ 80002a0:	7dfb      	ldrb	r3, [r7, #23]
+ 80002a2:	005b      	lsls	r3, r3, #1
+ 80002a4:	3318      	adds	r3, #24
+ 80002a6:	443b      	add	r3, r7
+ 80002a8:	f833 3c14 	ldrh.w	r3, [r3, #-20]
+ 80002ac:	2b00      	cmp	r3, #0
+ 80002ae:	d11d      	bne.n	80002ec <gsc_sch_core_exec+0xbc>
+                    {
+                        /* set the local module counter */
+                        lasw_MngTimeCnt[le_mngIndex] = (T_DelayMainType)cps_mngTaskList[le_mngIndex].ExecutionPeriod;
+ 80002b0:	7dfa      	ldrb	r2, [r7, #23]
+ 80002b2:	7dfb      	ldrb	r3, [r7, #23]
+ 80002b4:	4911      	ldr	r1, [pc, #68]	@ (80002fc <gsc_sch_core_exec+0xcc>)
+ 80002b6:	0112      	lsls	r2, r2, #4
+ 80002b8:	440a      	add	r2, r1
+ 80002ba:	320a      	adds	r2, #10
+ 80002bc:	8812      	ldrh	r2, [r2, #0]
+ 80002be:	005b      	lsls	r3, r3, #1
+ 80002c0:	3318      	adds	r3, #24
+ 80002c2:	443b      	add	r3, r7
+ 80002c4:	f823 2c14 	strh.w	r2, [r3, #-20]
+                        /* check whether the module starts for the currecnt Mode */
+                        if (0 != (cps_mngTaskList[le_mngIndex].UsedInMode & rt_curOpMode))
+ 80002c8:	7dfb      	ldrb	r3, [r7, #23]
+ 80002ca:	4a0c      	ldr	r2, [pc, #48]	@ (80002fc <gsc_sch_core_exec+0xcc>)
+ 80002cc:	011b      	lsls	r3, r3, #4
+ 80002ce:	4413      	add	r3, r2
+ 80002d0:	330c      	adds	r3, #12
+ 80002d2:	881a      	ldrh	r2, [r3, #0]
+ 80002d4:	4b0b      	ldr	r3, [pc, #44]	@ (8000304 <gsc_sch_core_exec+0xd4>)
+ 80002d6:	881b      	ldrh	r3, [r3, #0]
+ 80002d8:	4013      	ands	r3, r2
+ 80002da:	b29b      	uxth	r3, r3
+ 80002dc:	2b00      	cmp	r3, #0
+ 80002de:	d005      	beq.n	80002ec <gsc_sch_core_exec+0xbc>
+                        {
+                            cps_mngTaskList[le_mngIndex].ManagerAPI();
+ 80002e0:	7dfb      	ldrb	r3, [r7, #23]
+ 80002e2:	4a06      	ldr	r2, [pc, #24]	@ (80002fc <gsc_sch_core_exec+0xcc>)
+ 80002e4:	011b      	lsls	r3, r3, #4
+ 80002e6:	4413      	add	r3, r2
+ 80002e8:	681b      	ldr	r3, [r3, #0]
+ 80002ea:	4798      	blx	r3
+            for (le_mngIndex = (E_MODULES_ID_TYPE)0; le_mngIndex < SCHD_MANAGERS_NUMBER; le_mngIndex++)
+ 80002ec:	7dfb      	ldrb	r3, [r7, #23]
+ 80002ee:	3301      	adds	r3, #1
+ 80002f0:	75fb      	strb	r3, [r7, #23]
+ 80002f2:	7dfb      	ldrb	r3, [r7, #23]
+ 80002f4:	2b08      	cmp	r3, #8
+ 80002f6:	d9be      	bls.n	8000276 <gsc_sch_core_exec+0x46>
+        if (re_sch_mngExecflag)
+ 80002f8:	e7b2      	b.n	8000260 <gsc_sch_core_exec+0x30>
+ 80002fa:	bf00      	nop
+ 80002fc:	08000630 	.word	0x08000630
+ 8000300:	2000001e 	.word	0x2000001e
+ 8000304:	2000001c 	.word	0x2000001c
+
+08000308 <gsc_sch_core_tick_isr>:
+ *  Parameters           : void
+ *  Return               : void
+ *  Critical/explanation : No
+ **************************************************************/
+void gsc_sch_core_tick_isr(void)
+{
+ 8000308:	b480      	push	{r7}
+ 800030a:	af00      	add	r7, sp, #0
+	/* Set flag so background will run */
+    re_sch_mngExecflag = SCH_TRUE;
+ 800030c:	4b03      	ldr	r3, [pc, #12]	@ (800031c <gsc_sch_core_tick_isr+0x14>)
+ 800030e:	2201      	movs	r2, #1
+ 8000310:	701a      	strb	r2, [r3, #0]
+}
+ 8000312:	bf00      	nop
+ 8000314:	46bd      	mov	sp, r7
+ 8000316:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800031a:	4770      	bx	lr
+ 800031c:	2000001e 	.word	0x2000001e
+
+08000320 <led_init>:
+
+#define GPIOAEN			(1U<<0) // 0b 0000 0000 0000 0000 0000 0000 0000 0001
+#define LED_PIN			(1U<<5)
+
+void led_init(void)
+{
+ 8000320:	b480      	push	{r7}
+ 8000322:	af00      	add	r7, sp, #0
+	/*Enable clock access to led port (Port A)*/
+	RCC->AHB1ENR |= GPIOAEN; // 0b 0000 0000 0000 0000 0000 0000 0000 0001
+ 8000324:	4b0b      	ldr	r3, [pc, #44]	@ (8000354 <led_init+0x34>)
+ 8000326:	6b1b      	ldr	r3, [r3, #48]	@ 0x30
+ 8000328:	4a0a      	ldr	r2, [pc, #40]	@ (8000354 <led_init+0x34>)
+ 800032a:	f043 0301 	orr.w	r3, r3, #1
+ 800032e:	6313      	str	r3, [r2, #48]	@ 0x30
+	/*Set led pin as output pin*/
+	GPIOA->MODER |= (1U<<10);
+ 8000330:	4b09      	ldr	r3, [pc, #36]	@ (8000358 <led_init+0x38>)
+ 8000332:	681b      	ldr	r3, [r3, #0]
+ 8000334:	4a08      	ldr	r2, [pc, #32]	@ (8000358 <led_init+0x38>)
+ 8000336:	f443 6380 	orr.w	r3, r3, #1024	@ 0x400
+ 800033a:	6013      	str	r3, [r2, #0]
+	GPIOA->MODER &= ~(1U<<11);
+ 800033c:	4b06      	ldr	r3, [pc, #24]	@ (8000358 <led_init+0x38>)
+ 800033e:	681b      	ldr	r3, [r3, #0]
+ 8000340:	4a05      	ldr	r2, [pc, #20]	@ (8000358 <led_init+0x38>)
+ 8000342:	f423 6300 	bic.w	r3, r3, #2048	@ 0x800
+ 8000346:	6013      	str	r3, [r2, #0]
+}
+ 8000348:	bf00      	nop
+ 800034a:	46bd      	mov	sp, r7
+ 800034c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000350:	4770      	bx	lr
+ 8000352:	bf00      	nop
+ 8000354:	40023800 	.word	0x40023800
+ 8000358:	40020000 	.word	0x40020000
+
+0800035c <Set_led>:
+
+void Set_led(int led_status)
+{
+ 800035c:	b480      	push	{r7}
+ 800035e:	b083      	sub	sp, #12
+ 8000360:	af00      	add	r7, sp, #0
+ 8000362:	6078      	str	r0, [r7, #4]
+	if(led_status == 1)
+ 8000364:	687b      	ldr	r3, [r7, #4]
+ 8000366:	2b01      	cmp	r3, #1
+ 8000368:	d106      	bne.n	8000378 <Set_led+0x1c>
+	{
+		/*Set led pin HIGH (PA5)*/
+		GPIOA->ODR |= LED_PIN;
+ 800036a:	4b0b      	ldr	r3, [pc, #44]	@ (8000398 <Set_led+0x3c>)
+ 800036c:	695b      	ldr	r3, [r3, #20]
+ 800036e:	4a0a      	ldr	r2, [pc, #40]	@ (8000398 <Set_led+0x3c>)
+ 8000370:	f043 0320 	orr.w	r3, r3, #32
+ 8000374:	6153      	str	r3, [r2, #20]
+	else if(led_status == 0)
+	{
+		/*Set led pin LOW (PA5)*/
+		GPIOA->ODR &= ~LED_PIN;
+	}
+}
+ 8000376:	e008      	b.n	800038a <Set_led+0x2e>
+	else if(led_status == 0)
+ 8000378:	687b      	ldr	r3, [r7, #4]
+ 800037a:	2b00      	cmp	r3, #0
+ 800037c:	d105      	bne.n	800038a <Set_led+0x2e>
+		GPIOA->ODR &= ~LED_PIN;
+ 800037e:	4b06      	ldr	r3, [pc, #24]	@ (8000398 <Set_led+0x3c>)
+ 8000380:	695b      	ldr	r3, [r3, #20]
+ 8000382:	4a05      	ldr	r2, [pc, #20]	@ (8000398 <Set_led+0x3c>)
+ 8000384:	f023 0320 	bic.w	r3, r3, #32
+ 8000388:	6153      	str	r3, [r2, #20]
+}
+ 800038a:	bf00      	nop
+ 800038c:	370c      	adds	r7, #12
+ 800038e:	46bd      	mov	sp, r7
+ 8000390:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000394:	4770      	bx	lr
+ 8000396:	bf00      	nop
+ 8000398:	40020000 	.word	0x40020000
+
+0800039c <__NVIC_SetPriority>:
+  \param [in]      IRQn  Interrupt number.
+  \param [in]  priority  Priority to set.
+  \note    The priority cannot be set for every processor exception.
+ */
+__STATIC_INLINE void __NVIC_SetPriority(IRQn_Type IRQn, uint32_t priority)
+{
+ 800039c:	b480      	push	{r7}
+ 800039e:	b083      	sub	sp, #12
+ 80003a0:	af00      	add	r7, sp, #0
+ 80003a2:	4603      	mov	r3, r0
+ 80003a4:	6039      	str	r1, [r7, #0]
+ 80003a6:	71fb      	strb	r3, [r7, #7]
+  if ((int32_t)(IRQn) >= 0)
+ 80003a8:	f997 3007 	ldrsb.w	r3, [r7, #7]
+ 80003ac:	2b00      	cmp	r3, #0
+ 80003ae:	db0a      	blt.n	80003c6 <__NVIC_SetPriority+0x2a>
+  {
+    NVIC->IP[((uint32_t)IRQn)]               = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+ 80003b0:	683b      	ldr	r3, [r7, #0]
+ 80003b2:	b2da      	uxtb	r2, r3
+ 80003b4:	490c      	ldr	r1, [pc, #48]	@ (80003e8 <__NVIC_SetPriority+0x4c>)
+ 80003b6:	f997 3007 	ldrsb.w	r3, [r7, #7]
+ 80003ba:	0112      	lsls	r2, r2, #4
+ 80003bc:	b2d2      	uxtb	r2, r2
+ 80003be:	440b      	add	r3, r1
+ 80003c0:	f883 2300 	strb.w	r2, [r3, #768]	@ 0x300
+  }
+  else
+  {
+    SCB->SHP[(((uint32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+  }
+}
+ 80003c4:	e00a      	b.n	80003dc <__NVIC_SetPriority+0x40>
+    SCB->SHP[(((uint32_t)IRQn) & 0xFUL)-4UL] = (uint8_t)((priority << (8U - __NVIC_PRIO_BITS)) & (uint32_t)0xFFUL);
+ 80003c6:	683b      	ldr	r3, [r7, #0]
+ 80003c8:	b2da      	uxtb	r2, r3
+ 80003ca:	4908      	ldr	r1, [pc, #32]	@ (80003ec <__NVIC_SetPriority+0x50>)
+ 80003cc:	79fb      	ldrb	r3, [r7, #7]
+ 80003ce:	f003 030f 	and.w	r3, r3, #15
+ 80003d2:	3b04      	subs	r3, #4
+ 80003d4:	0112      	lsls	r2, r2, #4
+ 80003d6:	b2d2      	uxtb	r2, r2
+ 80003d8:	440b      	add	r3, r1
+ 80003da:	761a      	strb	r2, [r3, #24]
+}
+ 80003dc:	bf00      	nop
+ 80003de:	370c      	adds	r7, #12
+ 80003e0:	46bd      	mov	sp, r7
+ 80003e2:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80003e6:	4770      	bx	lr
+ 80003e8:	e000e100 	.word	0xe000e100
+ 80003ec:	e000ed00 	.word	0xe000ed00
+
+080003f0 <SysTick_Config>:
+  \note    When the variable <b>__Vendor_SysTickConfig</b> is set to 1, then the
+           function <b>SysTick_Config</b> is not included. In this case, the file <b><i>device</i>.h</b>
+           must contain a vendor-specific implementation of this function.
+ */
+__STATIC_INLINE uint32_t SysTick_Config(uint32_t ticks)
+{
+ 80003f0:	b580      	push	{r7, lr}
+ 80003f2:	b082      	sub	sp, #8
+ 80003f4:	af00      	add	r7, sp, #0
+ 80003f6:	6078      	str	r0, [r7, #4]
+  if ((ticks - 1UL) > SysTick_LOAD_RELOAD_Msk)
+ 80003f8:	687b      	ldr	r3, [r7, #4]
+ 80003fa:	3b01      	subs	r3, #1
+ 80003fc:	f1b3 7f80 	cmp.w	r3, #16777216	@ 0x1000000
+ 8000400:	d301      	bcc.n	8000406 <SysTick_Config+0x16>
+  {
+    return (1UL);                                                   /* Reload value impossible */
+ 8000402:	2301      	movs	r3, #1
+ 8000404:	e00f      	b.n	8000426 <SysTick_Config+0x36>
+  }
+
+  SysTick->LOAD  = (uint32_t)(ticks - 1UL);                         /* set reload register */
+ 8000406:	4a0a      	ldr	r2, [pc, #40]	@ (8000430 <SysTick_Config+0x40>)
+ 8000408:	687b      	ldr	r3, [r7, #4]
+ 800040a:	3b01      	subs	r3, #1
+ 800040c:	6053      	str	r3, [r2, #4]
+  NVIC_SetPriority (SysTick_IRQn, (1UL << __NVIC_PRIO_BITS) - 1UL); /* set Priority for Systick Interrupt */
+ 800040e:	210f      	movs	r1, #15
+ 8000410:	f04f 30ff 	mov.w	r0, #4294967295
+ 8000414:	f7ff ffc2 	bl	800039c <__NVIC_SetPriority>
+  SysTick->VAL   = 0UL;                                             /* Load the SysTick Counter Value */
+ 8000418:	4b05      	ldr	r3, [pc, #20]	@ (8000430 <SysTick_Config+0x40>)
+ 800041a:	2200      	movs	r2, #0
+ 800041c:	609a      	str	r2, [r3, #8]
+  SysTick->CTRL  = SysTick_CTRL_CLKSOURCE_Msk |
+ 800041e:	4b04      	ldr	r3, [pc, #16]	@ (8000430 <SysTick_Config+0x40>)
+ 8000420:	2207      	movs	r2, #7
+ 8000422:	601a      	str	r2, [r3, #0]
+                   SysTick_CTRL_TICKINT_Msk   |
+                   SysTick_CTRL_ENABLE_Msk;                         /* Enable SysTick IRQ and SysTick Timer */
+  return (0UL);                                                     /* Function successful */
+ 8000424:	2300      	movs	r3, #0
+}
+ 8000426:	4618      	mov	r0, r3
+ 8000428:	3708      	adds	r7, #8
+ 800042a:	46bd      	mov	sp, r7
+ 800042c:	bd80      	pop	{r7, pc}
+ 800042e:	bf00      	nop
+ 8000430:	e000e010 	.word	0xe000e010
+
+08000434 <main>:
+#include "led.h"
+
+volatile unsigned int sys_tick_counter = 0;
+
+int main(void)
+{
+ 8000434:	b580      	push	{r7, lr}
+ 8000436:	af00      	add	r7, sp, #0
+	/* SysTick Configuration */
+	SysTick_Config(16000000U/1000U); //This only applies for ARM Cores with SysTick capability
+ 8000438:	f44f 507a 	mov.w	r0, #16000	@ 0x3e80
+ 800043c:	f7ff ffd8 	bl	80003f0 <SysTick_Config>
+	led_init();
+ 8000440:	f7ff ff6e 	bl	8000320 <led_init>
+	/* Scheduler Initialization and tasks initialization  */
+	gsc_sch_core_Init();
+ 8000444:	f7ff fec8 	bl	80001d8 <gsc_sch_core_Init>
+
+	/* Execute Scheduler */
+	gsc_sch_core_exec();
+ 8000448:	f7ff fef2 	bl	8000230 <gsc_sch_core_exec>
+ 800044c:	2300      	movs	r3, #0
+}
+ 800044e:	4618      	mov	r0, r3
+ 8000450:	bd80      	pop	{r7, pc}
+	...
+
+08000454 <SysTick_Handler>:
+
+void SysTick_Handler(void)
+ {
+ 8000454:	b580      	push	{r7, lr}
+ 8000456:	af00      	add	r7, sp, #0
+ 	sys_tick_counter++;
+ 8000458:	4b04      	ldr	r3, [pc, #16]	@ (800046c <SysTick_Handler+0x18>)
+ 800045a:	681b      	ldr	r3, [r3, #0]
+ 800045c:	3301      	adds	r3, #1
+ 800045e:	4a03      	ldr	r2, [pc, #12]	@ (800046c <SysTick_Handler+0x18>)
+ 8000460:	6013      	str	r3, [r2, #0]
+ 	gsc_sch_core_tick_isr();
+ 8000462:	f7ff ff51 	bl	8000308 <gsc_sch_core_tick_isr>
+ }
+ 8000466:	bf00      	nop
+ 8000468:	bd80      	pop	{r7, pc}
+ 800046a:	bf00      	nop
+ 800046c:	20000020 	.word	0x20000020
+
+08000470 <periodic_tasks_exec_5tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_exec_5tks(void)
+ {
+ 8000470:	b480      	push	{r7}
+ 8000472:	af00      	add	r7, sp, #0
+
+ }
+ 8000474:	bf00      	nop
+ 8000476:	46bd      	mov	sp, r7
+ 8000478:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800047c:	4770      	bx	lr
+
+0800047e <periodic_tasks_exec_10tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_exec_10tks(void)
+ {
+ 800047e:	b480      	push	{r7}
+ 8000480:	af00      	add	r7, sp, #0
+
+ }
+ 8000482:	bf00      	nop
+ 8000484:	46bd      	mov	sp, r7
+ 8000486:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800048a:	4770      	bx	lr
+
+0800048c <periodic_tasks_exec_20tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_exec_20tks(void)
+ {
+ 800048c:	b480      	push	{r7}
+ 800048e:	af00      	add	r7, sp, #0
+
+ }
+ 8000490:	bf00      	nop
+ 8000492:	46bd      	mov	sp, r7
+ 8000494:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000498:	4770      	bx	lr
+
+0800049a <periodic_tasks_exec_50tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_exec_50tks(void)
+ {
+ 800049a:	b480      	push	{r7}
+ 800049c:	af00      	add	r7, sp, #0
+
+ }
+ 800049e:	bf00      	nop
+ 80004a0:	46bd      	mov	sp, r7
+ 80004a2:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80004a6:	4770      	bx	lr
+
+080004a8 <periodic_tasks_exec_100tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_exec_100tks(void)
+ {
+ 80004a8:	b580      	push	{r7, lr}
+ 80004aa:	af00      	add	r7, sp, #0
+	 if(flag == 0){
+ 80004ac:	4b0b      	ldr	r3, [pc, #44]	@ (80004dc <periodic_tasks_exec_100tks+0x34>)
+ 80004ae:	681b      	ldr	r3, [r3, #0]
+ 80004b0:	2b00      	cmp	r3, #0
+ 80004b2:	d106      	bne.n	80004c2 <periodic_tasks_exec_100tks+0x1a>
+		 Set_led(ON);
+ 80004b4:	2001      	movs	r0, #1
+ 80004b6:	f7ff ff51 	bl	800035c <Set_led>
+		 flag =1;
+ 80004ba:	4b08      	ldr	r3, [pc, #32]	@ (80004dc <periodic_tasks_exec_100tks+0x34>)
+ 80004bc:	2201      	movs	r2, #1
+ 80004be:	601a      	str	r2, [r3, #0]
+	 }
+	 else if(flag == 1){
+		 Set_led(OFF);
+		 flag = 0;
+	 }
+ }
+ 80004c0:	e009      	b.n	80004d6 <periodic_tasks_exec_100tks+0x2e>
+	 else if(flag == 1){
+ 80004c2:	4b06      	ldr	r3, [pc, #24]	@ (80004dc <periodic_tasks_exec_100tks+0x34>)
+ 80004c4:	681b      	ldr	r3, [r3, #0]
+ 80004c6:	2b01      	cmp	r3, #1
+ 80004c8:	d105      	bne.n	80004d6 <periodic_tasks_exec_100tks+0x2e>
+		 Set_led(OFF);
+ 80004ca:	2000      	movs	r0, #0
+ 80004cc:	f7ff ff46 	bl	800035c <Set_led>
+		 flag = 0;
+ 80004d0:	4b02      	ldr	r3, [pc, #8]	@ (80004dc <periodic_tasks_exec_100tks+0x34>)
+ 80004d2:	2200      	movs	r2, #0
+ 80004d4:	601a      	str	r2, [r3, #0]
+ }
+ 80004d6:	bf00      	nop
+ 80004d8:	bd80      	pop	{r7, pc}
+ 80004da:	bf00      	nop
+ 80004dc:	20000024 	.word	0x20000024
+
+080004e0 <periodic_tasks_exec_500tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_exec_500tks(void)
+ {
+ 80004e0:	b480      	push	{r7}
+ 80004e2:	af00      	add	r7, sp, #0
+
+ }
+ 80004e4:	bf00      	nop
+ 80004e6:	46bd      	mov	sp, r7
+ 80004e8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80004ec:	4770      	bx	lr
+
+080004ee <periodic_tasks_exec_1Mtks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_exec_1Mtks(void)
+ {
+ 80004ee:	b480      	push	{r7}
+ 80004f0:	af00      	add	r7, sp, #0
+
+ }
+ 80004f2:	bf00      	nop
+ 80004f4:	46bd      	mov	sp, r7
+ 80004f6:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80004fa:	4770      	bx	lr
+
+080004fc <periodic_tasks_init_MclDrvs>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+void periodic_tasks_init_MclDrvs(void)
+{
+ 80004fc:	b480      	push	{r7}
+ 80004fe:	af00      	add	r7, sp, #0
+
+}
+ 8000500:	bf00      	nop
+ 8000502:	46bd      	mov	sp, r7
+ 8000504:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000508:	4770      	bx	lr
+
+0800050a <periodic_tasks_init_SysDrvs>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+void periodic_tasks_init_SysDrvs(void)
+{
+ 800050a:	b480      	push	{r7}
+ 800050c:	af00      	add	r7, sp, #0
+
+}
+ 800050e:	bf00      	nop
+ 8000510:	46bd      	mov	sp, r7
+ 8000512:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000516:	4770      	bx	lr
+
+08000518 <periodic_tasks_init_task_5tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_init_task_5tks(void)
+ {
+ 8000518:	b480      	push	{r7}
+ 800051a:	af00      	add	r7, sp, #0
+
+ }
+ 800051c:	bf00      	nop
+ 800051e:	46bd      	mov	sp, r7
+ 8000520:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000524:	4770      	bx	lr
+
+08000526 <periodic_tasks_init_task_10tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_init_task_10tks(void)
+ {
+ 8000526:	b480      	push	{r7}
+ 8000528:	af00      	add	r7, sp, #0
+
+ }
+ 800052a:	bf00      	nop
+ 800052c:	46bd      	mov	sp, r7
+ 800052e:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000532:	4770      	bx	lr
+
+08000534 <periodic_tasks_init_task_20tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_init_task_20tks(void)
+ {
+ 8000534:	b480      	push	{r7}
+ 8000536:	af00      	add	r7, sp, #0
+
+ }
+ 8000538:	bf00      	nop
+ 800053a:	46bd      	mov	sp, r7
+ 800053c:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000540:	4770      	bx	lr
+
+08000542 <periodic_tasks_init_task_50tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_init_task_50tks(void)
+ {
+ 8000542:	b480      	push	{r7}
+ 8000544:	af00      	add	r7, sp, #0
+
+ }
+ 8000546:	bf00      	nop
+ 8000548:	46bd      	mov	sp, r7
+ 800054a:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800054e:	4770      	bx	lr
+
+08000550 <periodic_tasks_init_task_100tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_init_task_100tks(void)
+ {
+ 8000550:	b480      	push	{r7}
+ 8000552:	af00      	add	r7, sp, #0
+
+ }
+ 8000554:	bf00      	nop
+ 8000556:	46bd      	mov	sp, r7
+ 8000558:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800055c:	4770      	bx	lr
+
+0800055e <periodic_tasks_init_task_500tks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_init_task_500tks(void)
+ {
+ 800055e:	b480      	push	{r7}
+ 8000560:	af00      	add	r7, sp, #0
+
+ }
+ 8000562:	bf00      	nop
+ 8000564:	46bd      	mov	sp, r7
+ 8000566:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 800056a:	4770      	bx	lr
+
+0800056c <periodic_tasks_init_task_1Mtks>:
+ *  Parameters           : none
+ *  Return               : none
+ *  Critical/explanation : no
+ **************************************************************/
+ void periodic_tasks_init_task_1Mtks(void)
+ {
+ 800056c:	b480      	push	{r7}
+ 800056e:	af00      	add	r7, sp, #0
+
+ }
+ 8000570:	bf00      	nop
+ 8000572:	46bd      	mov	sp, r7
+ 8000574:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 8000578:	4770      	bx	lr
+	...
+
+0800057c <Reset_Handler>:
+
+  .section .text.Reset_Handler
+  .weak Reset_Handler
+  .type Reset_Handler, %function
+Reset_Handler:
+  ldr   r0, =_estack
+ 800057c:	480d      	ldr	r0, [pc, #52]	@ (80005b4 <LoopForever+0x2>)
+  mov   sp, r0          /* set stack pointer */
+ 800057e:	4685      	mov	sp, r0
+/* Call the clock system initialization function.*/
+  bl  SystemInit
+ 8000580:	f3af 8000 	nop.w
+
+/* Copy the data segment initializers from flash to SRAM */
+  ldr r0, =_sdata
+ 8000584:	480c      	ldr	r0, [pc, #48]	@ (80005b8 <LoopForever+0x6>)
+  ldr r1, =_edata
+ 8000586:	490d      	ldr	r1, [pc, #52]	@ (80005bc <LoopForever+0xa>)
+  ldr r2, =_sidata
+ 8000588:	4a0d      	ldr	r2, [pc, #52]	@ (80005c0 <LoopForever+0xe>)
+  movs r3, #0
+ 800058a:	2300      	movs	r3, #0
+  b LoopCopyDataInit
+ 800058c:	e002      	b.n	8000594 <LoopCopyDataInit>
+
+0800058e <CopyDataInit>:
+
+CopyDataInit:
+  ldr r4, [r2, r3]
+ 800058e:	58d4      	ldr	r4, [r2, r3]
+  str r4, [r0, r3]
+ 8000590:	50c4      	str	r4, [r0, r3]
+  adds r3, r3, #4
+ 8000592:	3304      	adds	r3, #4
+
+08000594 <LoopCopyDataInit>:
+
+LoopCopyDataInit:
+  adds r4, r0, r3
+ 8000594:	18c4      	adds	r4, r0, r3
+  cmp r4, r1
+ 8000596:	428c      	cmp	r4, r1
+  bcc CopyDataInit
+ 8000598:	d3f9      	bcc.n	800058e <CopyDataInit>
+
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+ 800059a:	4a0a      	ldr	r2, [pc, #40]	@ (80005c4 <LoopForever+0x12>)
+  ldr r4, =_ebss
+ 800059c:	4c0a      	ldr	r4, [pc, #40]	@ (80005c8 <LoopForever+0x16>)
+  movs r3, #0
+ 800059e:	2300      	movs	r3, #0
+  b LoopFillZerobss
+ 80005a0:	e001      	b.n	80005a6 <LoopFillZerobss>
+
+080005a2 <FillZerobss>:
+
+FillZerobss:
+  str  r3, [r2]
+ 80005a2:	6013      	str	r3, [r2, #0]
+  adds r2, r2, #4
+ 80005a4:	3204      	adds	r2, #4
+
+080005a6 <LoopFillZerobss>:
+
+LoopFillZerobss:
+  cmp r2, r4
+ 80005a6:	42a2      	cmp	r2, r4
+  bcc FillZerobss
+ 80005a8:	d3fb      	bcc.n	80005a2 <FillZerobss>
+
+/* Call static constructors */
+  bl __libc_init_array
+ 80005aa:	f000 f811 	bl	80005d0 <__libc_init_array>
+/* Call the application's entry point.*/
+  bl main
+ 80005ae:	f7ff ff41 	bl	8000434 <main>
+
+080005b2 <LoopForever>:
+
+LoopForever:
+  b LoopForever
+ 80005b2:	e7fe      	b.n	80005b2 <LoopForever>
+  ldr   r0, =_estack
+ 80005b4:	20020000 	.word	0x20020000
+  ldr r0, =_sdata
+ 80005b8:	20000000 	.word	0x20000000
+  ldr r1, =_edata
+ 80005bc:	20000000 	.word	0x20000000
+  ldr r2, =_sidata
+ 80005c0:	080006c8 	.word	0x080006c8
+  ldr r2, =_sbss
+ 80005c4:	20000000 	.word	0x20000000
+  ldr r4, =_ebss
+ 80005c8:	20000028 	.word	0x20000028
+
+080005cc <ADC_IRQHandler>:
+ * @retval : None
+*/
+  .section .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b Infinite_Loop
+ 80005cc:	e7fe      	b.n	80005cc <ADC_IRQHandler>
+	...
+
+080005d0 <__libc_init_array>:
+ 80005d0:	b570      	push	{r4, r5, r6, lr}
+ 80005d2:	4d0d      	ldr	r5, [pc, #52]	@ (8000608 <__libc_init_array+0x38>)
+ 80005d4:	4c0d      	ldr	r4, [pc, #52]	@ (800060c <__libc_init_array+0x3c>)
+ 80005d6:	1b64      	subs	r4, r4, r5
+ 80005d8:	10a4      	asrs	r4, r4, #2
+ 80005da:	2600      	movs	r6, #0
+ 80005dc:	42a6      	cmp	r6, r4
+ 80005de:	d109      	bne.n	80005f4 <__libc_init_array+0x24>
+ 80005e0:	4d0b      	ldr	r5, [pc, #44]	@ (8000610 <__libc_init_array+0x40>)
+ 80005e2:	4c0c      	ldr	r4, [pc, #48]	@ (8000614 <__libc_init_array+0x44>)
+ 80005e4:	f000 f818 	bl	8000618 <_init>
+ 80005e8:	1b64      	subs	r4, r4, r5
+ 80005ea:	10a4      	asrs	r4, r4, #2
+ 80005ec:	2600      	movs	r6, #0
+ 80005ee:	42a6      	cmp	r6, r4
+ 80005f0:	d105      	bne.n	80005fe <__libc_init_array+0x2e>
+ 80005f2:	bd70      	pop	{r4, r5, r6, pc}
+ 80005f4:	f855 3b04 	ldr.w	r3, [r5], #4
+ 80005f8:	4798      	blx	r3
+ 80005fa:	3601      	adds	r6, #1
+ 80005fc:	e7ee      	b.n	80005dc <__libc_init_array+0xc>
+ 80005fe:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000602:	4798      	blx	r3
+ 8000604:	3601      	adds	r6, #1
+ 8000606:	e7f2      	b.n	80005ee <__libc_init_array+0x1e>
+ 8000608:	080006c0 	.word	0x080006c0
+ 800060c:	080006c0 	.word	0x080006c0
+ 8000610:	080006c0 	.word	0x080006c0
+ 8000614:	080006c4 	.word	0x080006c4
+
+08000618 <_init>:
+ 8000618:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 800061a:	bf00      	nop
+ 800061c:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 800061e:	bc08      	pop	{r3}
+ 8000620:	469e      	mov	lr, r3
+ 8000622:	4770      	bx	lr
+
+08000624 <_fini>:
+ 8000624:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000626:	bf00      	nop
+ 8000628:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 800062a:	bc08      	pop	{r3}
+ 800062c:	469e      	mov	lr, r3
+ 800062e:	4770      	bx	lr

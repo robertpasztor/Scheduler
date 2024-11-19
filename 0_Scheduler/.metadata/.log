@@ -1,0 +1,34 @@
+!SESSION 2024-11-14 23:06:57.240 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Command-line arguments:  -os win32 -ws win32 -arch x86_64
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-11-14 23:07:20.145
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-11-14 23:07:20.162
+!MESSAGE Log4j2 initialized with config file C:\Users\Robert Pasztor\Documents\Sandbox\Build_Your_Own_RealTime_OS_RTOS_1_From_Ground_Up_on_ARM_1\0_led_driver\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-11-14 23:07:25.029
+!MESSAGE Started RMI Server, listening on port 41337
+
+!ENTRY org.eclipse.core.jobs 2 2 2024-11-14 23:07:43.519
+!MESSAGE Job found still running after platform shutdown.  Jobs should be canceled by the plugin that scheduled them during shutdown: org.eclipse.ui.internal.Workbench$39
+!SESSION 2024-11-15 14:09:33.259 -----------------------------------------------
+eclipse.buildId=Version 1.16.0
+java.version=17.0.11
+java.vendor=Eclipse Adoptium
+BootLoader constants: OS=win32, ARCH=x86_64, WS=win32, NL=en_US
+Framework arguments:  C:\Users\Robert Pasztor\Documents\Sandbox\Scheduler\0_Scheduler\.project
+Command-line arguments:  -os win32 -ws win32 -arch x86_64 C:\Users\Robert Pasztor\Documents\Sandbox\Scheduler\0_Scheduler\.project
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 4 4 2024-11-15 14:09:52.105
+!MESSAGE CubeMX plugin appears to be active, Log4j initialization might be too late.
+
+!ENTRY com.st.stm32cube.ide.mcu.informationcenter 1 1 2024-11-15 14:09:52.119
+!MESSAGE Log4j2 initialized with config file C:\Users\Robert Pasztor\Documents\Sandbox\Scheduler\0_Scheduler\.metadata\.log4j2.xml
+
+!ENTRY com.st.stm32cube.ide.mcu.ide 1 1 2024-11-15 14:09:58.707
+!MESSAGE Started RMI Server, listening on port 41337

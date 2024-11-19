@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Move &apos;gsc_sch_core, periodic_tasks&apos; to &apos;gsc_scheduler&apos;" description="Move 2 resources to &apos;gsc_scheduler&apos;" destination="gsc_scheduler" element1="gsc_sch_core" element2="periodic_tasks" flags="7" id="org.eclipse.ltk.core.refactoring.move.resources" resources="2" stamp="1731701853902" updateReferences="true"/>
+</session>

@@ -1,0 +1,9 @@
+../Src/periodic_tasks_init.c:21:6:periodic_tasks_init_MclDrvs	1
+../Src/periodic_tasks_init.c:33:6:periodic_tasks_init_SysDrvs	1
+../Src/periodic_tasks_init.c:46:7:periodic_tasks_init_task_5tks	1
+../Src/periodic_tasks_init.c:59:7:periodic_tasks_init_task_10tks	1
+../Src/periodic_tasks_init.c:72:7:periodic_tasks_init_task_20tks	1
+../Src/periodic_tasks_init.c:85:7:periodic_tasks_init_task_50tks	1
+../Src/periodic_tasks_init.c:98:7:periodic_tasks_init_task_100tks	1
+../Src/periodic_tasks_init.c:111:7:periodic_tasks_init_task_500tks	1
+../Src/periodic_tasks_init.c:124:7:periodic_tasks_init_task_1Mtks	1

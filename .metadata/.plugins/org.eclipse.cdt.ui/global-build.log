@@ -1,0 +1,27 @@
+14:24:24 **** Incremental Build of configuration Debug for project 0_Scheduler ****
+make -j4 all 
+arm-none-eabi-gcc "../Src/gsc_sch_core.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32F411xE -c -I../Inc -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/gsc_sch_core.d" -MT"Src/gsc_sch_core.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/gsc_sch_core.o"
+arm-none-eabi-gcc "../Src/gsc_sch_core_cfg.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32F411xE -c -I../Inc -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/gsc_sch_core_cfg.d" -MT"Src/gsc_sch_core_cfg.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/gsc_sch_core_cfg.o"
+arm-none-eabi-gcc "../Src/gsc_sch_core_tick_isr.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32F411xE -c -I../Inc -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/gsc_sch_core_tick_isr.d" -MT"Src/gsc_sch_core_tick_isr.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/gsc_sch_core_tick_isr.o"
+arm-none-eabi-gcc "../Src/led.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32F411xE -c -I../Inc -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/led.d" -MT"Src/led.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/led.o"
+arm-none-eabi-gcc "../Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32F411xE -c -I../Inc -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/main.d" -MT"Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/main.o"
+arm-none-eabi-gcc "../Src/periodic_tasks_exec.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32F411xE -c -I../Inc -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/periodic_tasks_exec.d" -MT"Src/periodic_tasks_exec.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/periodic_tasks_exec.o"
+arm-none-eabi-gcc "../Src/periodic_tasks_init.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DSTM32F411xE -c -I../Inc -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Robert Pasztor/Documents/Sandbox/Scheduler/0_Scheduler/chip_headers/CMSIS/Include" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Src/periodic_tasks_init.d" -MT"Src/periodic_tasks_init.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Src/periodic_tasks_init.o"
+arm-none-eabi-gcc -o "0_Scheduler.elf" @"objects.list"   -mcpu=cortex-m4 -T"C:\Users\Robert Pasztor\Documents\Sandbox\Scheduler\0_Scheduler\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="0_Scheduler.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: 0_Scheduler.elf
+ 
+arm-none-eabi-size  0_Scheduler.elf 
+arm-none-eabi-objdump -h -S 0_Scheduler.elf  > "0_Scheduler.list"
+   text	   data	    bss	    dec	    hex	filename
+   1736	      0	   1576	   3312	    cf0	0_Scheduler.elf
+Finished building: default.size.stdout
+ 
+Finished building: 0_Scheduler.list
+ 
+14:24:29 **** Incremental Build of configuration Debug for project 0_Scheduler ****
+make -j4 all 
+arm-none-eabi-size  0_Scheduler.elf 
+   text	   data	    bss	    dec	    hex	filename
+   1736	      0	   1576	   3312	    cf0	0_Scheduler.elf
+Finished building: default.size.stdout
+ 

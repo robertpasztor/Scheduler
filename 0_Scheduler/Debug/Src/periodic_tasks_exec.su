@@ -1,0 +1,7 @@
+../Src/periodic_tasks_exec.c:26:7:periodic_tasks_exec_5tks	4	static
+../Src/periodic_tasks_exec.c:40:7:periodic_tasks_exec_10tks	4	static
+../Src/periodic_tasks_exec.c:54:7:periodic_tasks_exec_20tks	4	static
+../Src/periodic_tasks_exec.c:68:7:periodic_tasks_exec_50tks	4	static
+../Src/periodic_tasks_exec.c:82:7:periodic_tasks_exec_100tks	8	static
+../Src/periodic_tasks_exec.c:103:7:periodic_tasks_exec_500tks	4	static
+../Src/periodic_tasks_exec.c:117:7:periodic_tasks_exec_1Mtks	4	static
